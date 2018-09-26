@@ -18,7 +18,7 @@ rMETL - realignment-based Mobile Element insertion detection Tool for Long read
 
 ---	
 ### Introduction
-
+Mobile element insertion (MEI) is a major category of structure variations (SVs). The rapid development of long read sequencing provides the opportunity to sensitively discover MEIs. However, the signals of MEIs implied by noisy long reads are highly complex, due to the repetitiveness of mobile elements as well as the serious sequencing errors. Herein, we propose Realignment-based Mobile Element insertion detection Tool for Long read (rMETL). rMETL takes advantage of its novel chimeric read re-alignment approach to well handle complex MEI signals. Benchmarking results on simulated and real datasets demonstrated that rMETL has the ability to more sensitivity discover MEIs as well as prevent false positives. It is suited to produce high quality MEI callsets in many genomics studies.
 
 
 ---
@@ -30,7 +30,7 @@ The simulated datasets use for benchmarking are available at: https://drive.goog
 ### Memory usage
 
 The memory usage of rMETL can fit the configurations of most modern servers and workstations.
-Its peak memory footprint is about 16.7G Gigabytes (default setting), on a server with Intel Xeon CPU at 2.00 GHz, 1 Terabytes RAM running Linux Ubuntu 14.04. These reads were aligned to human reference genome hs37d5.
+Its peak memory footprint is about 12.18 Gigabytes (default setting), on a server with Intel Xeon CPU at 2.00 GHz, 1 Terabytes RAM running Linux Ubuntu 14.04. These reads were aligned to human reference genome hs37d5.
 
 ---
 ### Dependences
@@ -49,26 +49,26 @@ Its peak memory footprint is about 16.7G Gigabytes (default setting), on a serve
 Current version of rMETL needs to be run on Linux operating system.
 The source code is written in python, and can be directly download from: https://github.com/hitbc/rMETL 
 A mirror is also in: https://github.com/tjiangHIT/rMETL
-The INSTALL.sh is attached. Use the make command for generating the executable file.
+The INSTALL.sh is attached. Use the bash command for generating the executable file.
 
 ---
 ### Synopsis
-Detect Mobile Element signals.
+Inference of putative MEI loci.
 
-	rMETL.py extract <alignments> <reference> <temp_dir> <output>
+	rMETL.py detection <alignments> <reference> <temp_dir> <output>
 
-Realigne signal loci to transposable element concensus librarys.
+Realignment of chimeric read parts.
 
-	rMETL.py map <FASTA> <TEREF> <output>
+	rMETL.py realignment <FASTA> <MEREF> <output>
 
-Mobile Element calling and genotyping.
+Mobile Element Insertion calling.
 
-	rMETL.py call <SAM> <reference> <out_type> <output>
+	rMETL.py calling <SAM> <reference> <out_type> <output>
 
 ---
 ### Optional Parameters
 
-#### extract
+#### Detection
 
 | Parameters | Descriptions | Defaults |
 | :------------ |:---------------|:---------------|
@@ -78,7 +78,7 @@ Mobile Element calling and genotyping.
 | THREADS       |Number of threads to use.|1|
 | PRESETS       |The sequencing type <pacbio,ont> of the reads.|pacbio|
 
-#### map
+#### Realignment
 
 | Parameters | Descriptions | Defaults |
 | :------------ |:---------------|:---------------|
@@ -87,19 +87,20 @@ Mobile Element calling and genotyping.
 | SUBREAD_LENGTH       |Length of fragments reads are split into.|128|
 | SUBREAD_CORRIDOR       |Length of corridor sub-reads are aligned with.|20|
 
-#### call
+#### Calling
 
 | Parameters | Descriptions | Defaults |
 | :------------ |:---------------|:---------------|
 | HOMOZYGOUS       |The mininum score of a genotyping reported as a homozygous.|0.8|
 | HETEROZYGOUS       |The mininum score of a genotyping reported as a heterozygous.|0.3|
 | MIN_MAPQ       |Mininum mapping quality.|20|
+| CLIPPING_THRESHOLD  |Mininum threshold of realignment clipping.|0.5|
 | SAMPLE       |The name of the sample which be noted.|None|
 | MEI       |Enables rMETL to display MEI/MED only.|False|
 
 ---
 ### Reference
-doi: https://doi.org/10.1101/421560 
+bioRxiv 421560; doi: https://doi.org/10.1101/421560 
 
 ---
 ### Contact

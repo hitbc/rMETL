@@ -20,6 +20,7 @@ import tempfile
 import sys, time
 from CommandRunner import *
 from Bio import SeqIO
+import cigar
 
 def acquire_count_max(_list_):
 	c = Counter(_list_)
@@ -100,12 +101,36 @@ def parse_name_tp(line):
 	local_info = R_INFO(Type, chr, pos, len, GT)
 	return local_info
 
+def clip_analysis(deal_cigar, clipping_threshold):
+	seq = list(cigar.Cigar(deal_cigar).items())
+	if seq[0][1] == 'S':
+		first_pos = seq[0][0]
+	else:
+		first_pos = 0
+	if seq[-1][1] == 'S':
+		last_pos = seq[-1][0]
+	else:
+		last_pos = 0
+	
+	total_len = first_pos + last_pos
+	signal_len = 0
+	for i in seq:
+		signal_len += i[0]
+
+	if signal_len == 0:
+		return 0
+
+	if total_len*1.0 / signal_len >= clipping_threshold:
+		return 0
+	else:
+		return 1
+
 def call_bed(args):
 	# samfile = pysam.AlignmentFile(p1)
 	path = args.input
 	out_path = args.output + "calling.bed"
 	AlignmentFile = open(path, 'r')
-	logging.info("Loading ME alignmets...")
+	logging.info("Loading ME realignmets...")
 	for line in AlignmentFile:
 		seq = line.strip('\n').split('\t')
 		if seq[0][0] == '@':
@@ -115,7 +140,9 @@ def call_bed(args):
 		Flag = int(seq[1])
 		sub_type = seq[2]
 		MAPQ = int(seq[4])
-		if flag_dic[Flag] != 0 and MAPQ >= args.min_mapq:
+		cigar = seq[5]
+		cigar_flag = clip_analysis(cigar, args.clipping_threshold)
+		if flag_dic[Flag] != 0 and MAPQ >= args.min_mapq and cigar_flag == 1:
 			# to do something
 			# key = "%s_%s_%s"%(chr, breakpoint, insert_size)
 			key = "%s*%s*%s*%s"%(local_info.Chr, local_info.Pos, local_info.Len, local_info.GT)
@@ -155,6 +182,12 @@ def call_bed(args):
 		chr, breakpoint, insert_size, GT = parse_name(i)
 		# print cluster_dic[i]
 		final_type = acquire_count_max(cluster_dic[i])
+
+		# ************bug test**************
+		# if len(cluster_dic[i]) < 5:
+		# 	continue
+		# ************bug test**************
+
 		# final_type = cluster_dic[i][1]
 		# final_MAPQ = cluster_dic[i][0]
 		# final_strand = final.split('&')[1]
@@ -175,6 +208,7 @@ def call_bed(args):
 	sort_list = sorted(sort_list, key = lambda x:(x[0], int(x[1])))
 	file = open(out_path, 'w')
 	logging.info("Writing results into disk...")
+	file.write("# Chromsome\tBreakpoint\tSV length\tMEI Type")
 	for i in sort_list:
 		# print("%s\t%s\t%s\t%s"%(i[0], breakpoint, insert_size, final_type))
 		# print "\t".join(i)
@@ -250,7 +284,7 @@ def call_vcf(args):
 	ref = load_ref(args.Reference)
 
 	AlignmentFile = open(path, 'r')
-	logging.info("Loading ME alignmets...")
+	logging.info("Loading ME realignmets...")
 	for line in AlignmentFile:
 		seq = line.strip('\n').split('\t')
 		if seq[0][0] == '@':
@@ -260,7 +294,9 @@ def call_vcf(args):
 		Flag = int(seq[1])
 		sub_type = seq[2]
 		MAPQ = int(seq[4])
-		if flag_dic[Flag] != 0 and MAPQ >= args.min_mapq:
+		cigar = seq[5]
+		cigar_flag = clip_analysis(cigar, args.clipping_threshold)
+		if flag_dic[Flag] != 0 and MAPQ >= args.min_mapq and cigar_flag == 1:
 			# to do something
 			key = "%s*%s*%s*%s"%(local_info.Chr, local_info.Pos, local_info.Len, local_info.GT)
 			if key not in cluster_dic:
@@ -345,9 +381,9 @@ def call_vcf(args):
 VERSION="1.0"
 
 USAGE="""\
-	rMETL calling and genotyping.
+	rMETL MEI calling.
 
-	Optional output format: .bed and .vcf
+	Optional output format: .bed or .vcf
 """
 
 def parseArgs(argv):
@@ -365,6 +401,7 @@ def parseArgs(argv):
 	parser.add_argument('-hom', '--homozygous', help = "The mininum score of a genotyping reported as a homozygous.[%(default)s]", default = 0.8, type = float)
 	parser.add_argument('-het','--heterozygous', help = "The mininum score of a genotyping reported as a heterozygous.[%(default)s]", default = 0.3, type = float)
 	parser.add_argument('-q', '--min_mapq', help = "Mininum mapping quality.[%(default)s]", default = 20, type = int)
+	parser.add_argument('-c', '--clipping_threshold', help = "Mininum threshold of realignment clipping.[%(default)s]", default = 0.5, type = float)
 	parser.add_argument('--sample', help = "The name of the sample which be noted.", default = "None", type = str)
 
 	parser.add_argument('--MEI', help = "Enables rMETL to display MEI/MED only.[%(default)s]", default = "False", type = str)

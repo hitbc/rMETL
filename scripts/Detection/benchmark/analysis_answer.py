@@ -10,7 +10,8 @@ L1_D = dict()
 SVA = dict()
 SVA_D = dict()
 Ans = list()
-Ans_tag = ["Tea", "Tangram", "RetroSeq", "1kG", "Mobster", "MELT"]
+# Ans_tag = ["Tea", "Tangram", "RetroSeq", "1kG", "Mobster", "MELT"]
+Ans_tag = ["Tea", "Tangram", "1kG", "Mobster"]
 
 def process_path(path):
 	load_path = list()
@@ -92,10 +93,10 @@ def load_data(path):
 
 	Ans.append(collect_Tea_plus(path[0], path[1]))
 	Ans.append(collect_Tangram_plus(path[2]))
-	Ans.append(collect_RetroSeq_plus(path[3]))
+	# Ans.append(collect_RetroSeq_plus(path[3]))
 	Ans.append(collect_1kg_plus(path[4]))
 	Ans.append(collect_Mobster_plus(path[5]))
-	Ans.append(collect_MELT_plus(path[6]))
+	# Ans.append(collect_MELT_plus(path[6]))
 
 	for i in xrange(len(Ans)):
 		Name = Ans_tag[i]
@@ -131,10 +132,10 @@ def load_data(path):
 def compare(chr, pos, subtype):
 	if subtype == 'AI':
 		data_ans = Alu
-		standard = 20
+		standard = 50
 	if subtype == 'AD':
 		data_ans = Alu_D
-		standard = 20
+		standard = 50
 	if subtype == 'LI':
 		data_ans = L1
 		standard = 50
@@ -148,11 +149,14 @@ def compare(chr, pos, subtype):
 		data_ans = SVA_D
 		standard = 50
 
+	flag = 0
 	if chr in data_ans:
 		for i in xrange(len(data_ans[chr])):
 		# for ele in data_ans[chr]:
 			if data_ans[chr][i][0] - standard <= pos and pos <= data_ans[chr][i][1] + standard:
 				data_ans[chr][i][3] = 1
+				flag = 1
+	return flag
 
 def compare_sniffles(chr, pos, subtype):
 	if subtype == 'XI':
@@ -160,9 +164,10 @@ def compare_sniffles(chr, pos, subtype):
 	if subtype == 'XD':
 		data_ans = [Alu_D, L1_D, SVA_D]
 
+	flag = 0
 	for k in xrange(len(data_ans)):
 		if k == 0:
-			standard = 20
+			standard = 50
 		else:
 			standard = 50
 		if chr in data_ans[k]:
@@ -170,6 +175,8 @@ def compare_sniffles(chr, pos, subtype):
 		# for ele in data_ans[chr]:
 				if data_ans[k][chr][i][0] - standard <= pos and pos <= data_ans[k][chr][i][1] + standard:
 					data_ans[k][chr][i][3] = 1
+					flag = 1
+	return flag
 
 def statics():
 	Talu_0 = [0]*len(Ans)
@@ -268,7 +275,7 @@ def statics():
 
 def compare_each_base(chr, breakpoint, subtype):
 	if subtype[0] == 'A':
-		standard = 20
+		standard = 50
 	else:
 		standard = 50
 	for i in xrange(len(Ans)):
@@ -302,7 +309,7 @@ def compare_each_base_sniffles(chr, breakpoint, subtype):
 					Ans[i][chr][j][2] = -2
 
 				if Ans[i][chr][j][1][0] == 'A':
-					standard = 20
+					standard = 50
 				else:
 					standard = 50
 
@@ -328,6 +335,22 @@ def evaluation(p):
 	file.close()
 	statics()
 
+def evaluation_output_nagitive(p):
+	file = open(p, 'r')
+	for line in file:
+		seq = line.strip('\n').split('\t')
+		chr = seq[0]
+		breakpoint = int(seq[1])
+		# subtype = seq[3]
+		# subtype = subtype.split(':')[2]
+		subtype = seq[3][8]+seq[3][1]
+		flag = compare(chr, breakpoint, subtype)
+		if flag == 0:
+			print(line.strip('\n')) 
+		# compare_each_base(chr, breakpoint, subtype)
+	file.close()
+	# statics()
+
 def evaluation_vcf(p):
 	file = open(p, 'r')
 	for line in file:
@@ -351,6 +374,25 @@ def evaluation_sniffles(p):
 		if seq[0][0] == '#':
 			continue
 		chr = seq[0]
+		breakpoint = int(seq[13])
+		# subtype = seq[3]
+		# subtype = subtype.split(':')[2]
+		if seq[10][:3] == "DEL":
+			subtype = 'XD'
+		if seq[10][:3] == "INS" or seq[10][:3] == "DUP":
+			subtype = 'XI'
+		compare_sniffles(chr, breakpoint, subtype)
+		compare_each_base_sniffles(chr, breakpoint, subtype)
+	file.close()
+	statics()
+
+def evaluation_sniffles_vcf(p):
+	file = open(p, 'r')
+	for line in file:
+		seq = line.strip('\n').split('\t')
+		if seq[0][0] == '#':
+			continue
+		chr = seq[0]
 		breakpoint = int(seq[1])
 		# subtype = seq[3]
 		# subtype = subtype.split(':')[2]
@@ -363,6 +405,34 @@ def evaluation_sniffles(p):
 	file.close()
 	statics()
 
+def evaluation_sniffles_output_negitive(p):
+	file = open(p, 'r')
+	for line in file:
+		seq = line.strip('\n').split('\t')
+		if seq[0][0] == '#':
+			continue
+		chr = seq[0]
+		breakpoint = int(seq[13])
+		# subtype = seq[3]
+		# subtype = subtype.split(':')[2]
+		f2 = 0
+		if seq[10][:3] == "DEL":
+			subtype = 'XD'
+		# if seq[4][1:4] == "DEL":
+		# 	subtype = 'XD'
+			f2 = 1
+		if seq[10][:3] == "INS" or seq[10][:3] == "DUP":
+			subtype = 'XI'
+		# if seq[4][1:4] == "INS" or seq[4][1:4] == "DUP":
+		# 	subtype = 'XI'
+			f2 = 1
+		flag = compare_sniffles(chr, breakpoint, subtype)
+		if flag == 0 and f2 == 1:
+			print(line.strip('\n')) 
+		# compare_each_base_sniffles(chr, breakpoint, subtype)
+	file.close()
+	# statics()
+
 def evaluation_tag(p):
 	file = open(p, 'r')
 	for line in file:
@@ -373,9 +443,9 @@ def evaluation_tag(p):
 		breakpoint = int(seq[2])
 		# subtype = seq[3]
 		# subtype = subtype.split(':')[2]
-		if seq[0][1:4] == "DEL":
+		if seq[0] == "DEL":
 			subtype = 'XD'
-		if seq[0][1:4] == "INS":
+		if seq[0] == "INS":
 			subtype = 'XI'
 		compare_sniffles(chr, breakpoint, subtype)
 		compare_each_base_sniffles(chr, breakpoint, subtype)
@@ -388,9 +458,12 @@ def main():
 	load_path = process_path(dataset_prefix)
 	load_data(load_path)
 	call_path = sys.argv[2]
-	evaluation(call_path)
+	# evaluation(call_path)
+	evaluation_output_nagitive(call_path)
+	# evaluation_sniffles_output_negitive(call_path)
 	# evaluation_tag(call_path)
 	# evaluation_sniffles(call_path)
+	# evaluation_sniffles_vcf(call_path)
 
 
 if __name__ == '__main__':
