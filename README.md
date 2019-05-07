@@ -11,26 +11,25 @@ rMETL - realignment-based Mobile Element insertion detection Tool for Long read
 		|_|    |_|  \__/  |_| |______|     |_|     |______|
      
 	
-	$ git clone https://github.com/hitbc/rMETL.git (git clone https://github.com/tjiangHIT/rMETL.git)
+	$ git clone https://github.com/tjiangHIT/rMETL.git (git clone https://github.com/hitbc/rMETL.git)
 	$ cd rMETL/
 	$ bash INSTALL.sh
 	$ ./rMETL.py
 
 ---	
 ### Introduction
-Mobile element insertion (MEI) is a major category of structure variations (SVs). The rapid development of long read sequencing provides the opportunity to sensitively discover MEIs. However, the signals of MEIs implied by noisy long reads are highly complex, due to the repetitiveness of mobile elements as well as the serious sequencing errors. Herein, we propose Realignment-based Mobile Element insertion detection Tool for Long read (rMETL). rMETL takes advantage of its novel chimeric read re-alignment approach to well handle complex MEI signals. Benchmarking results on simulated and real datasets demonstrated that rMETL has the ability to more sensitivity discover MEIs as well as prevent false positives. It is suited to produce high quality MEI callsets in many genomics studies.
-
+Mobile element insertion (MEI) is a major category of structure variations (SVs). The rapid development of long read sequencing technologies provides the opportunity to detect MEIs sensitively. However, the signals of MEI implied by noisy long reads are highly complex due to the repetitiveness of mobile elements as well as the high sequencing error rates. Herein, we propose the Realignment-based Mobile Element insertion detection Tool for Long read (rMETL). Benchmarking results of simulated and real datasets demonstrate that rMETL has the ability to discover MEIs sensitively as well as prevent false positives. It is suited to produce high-quality MEI callsets in many genomics studies.
 
 ---
 ### Simulated datasets
 
-The simulated datasets use for benchmarking are available at: https://drive.google.com/open?id=1ujV2C8e1PNAVhSkh9vKtjWLdG_OHcH-k
+The simulated datasets use for benchmarking are available at: [Google drive](https://drive.google.com/open?id=1ujV2C8e1PNAVhSkh9vKtjWLdG_OHcH-k)
 
 ---
 ### Memory usage
 
 The memory usage of rMETL can fit the configurations of most modern servers and workstations.
-Its peak memory footprint is about 12.18 Gigabytes (default setting), on a server with Intel Xeon CPU at 2.00 GHz, 1 Terabytes RAM running Linux Ubuntu 14.04. These reads were aligned to human reference genome hs37d5.
+Its peak memory footprint is about 7.05 Gigabytes (default setting), on a server with Intel Xeon CPU at 2.00 GHz, 1 Terabytes RAM running Linux Ubuntu 14.04. These reads were aligned to human reference genome hs37d5.
 
 ---
 ### Dependences
@@ -46,7 +45,7 @@ Its peak memory footprint is about 12.18 Gigabytes (default setting), on a serve
 ---
 ### Installation
 
-Current version of rMETL needs to be run on Linux operating system.
+Current version of rMETL has been tested on 64bit Linux operating system.
 The source code is written in python, and can be directly download from: https://github.com/hitbc/rMETL 
 A mirror is also in: https://github.com/tjiangHIT/rMETL
 The INSTALL.sh is attached. Use the bash command for generating the executable file.
@@ -102,8 +101,9 @@ Strongly recommend making output directory manually at first.:blush:
 
 ---
 ### Citation
-Tao Jiang, Bo Liu, Junyi Li, Yadong Wang; rMETL: sensitive mobile element insertion detection with long read realignment, Bioinformatics, , btz106, https://doi.org/10.1093/bioinformatics/btz106
+If you use rMETL, please cite:
+> Tao Jiang *et al*; rMETL: sensitive mobile element insertion detection with long read realignment, *Bioinformatics*, , btz106, https://doi.org/10.1093/bioinformatics/btz106
 
 ---
 ### Contact
-For advising, bug reporting and requiring help, please contact ydwang@hit.edu.cn or tjiang@hit.edu.cn
+For advising, bug reporting and requiring help, please post on [Github Issue](https://github.com/tjiangHIT/rMETL/issues) or contact tjiang@hit.edu.cn.
